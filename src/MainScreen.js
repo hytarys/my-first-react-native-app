@@ -1,29 +1,26 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { StyleSheet, View, FlatList } from "react-native";
-import { List } from "react-native-paper";
+import { List, FAB } from "react-native-paper";
 import format from "date-fns/format";
-
-const memos = [
-  {
-    text: "メモメモメモメモメモ",
-    createdAt: 1585574700000,
-  },
-  {
-    text: "メモメモメモメモメモ",
-    createdAt: 1585534700000,
-  },
-  {
-    text: "メモメモメモメモメモメモメモメモメモメモメモメモメモメモメモメモメモメモメモメモ",
-    createdAt: 1582574700000,
-  },
-  {
-    text: "メモメモメモメモメモ",
-    createdAt: 1586574700000,
-  },
-
-];
+import { useNavigation } from '@react-navigation/native';
+import { useState } from "react/cjs/react.development";
+import { loadAll } from "./store";
 
 export const MainScreen = () => {
+  const navigation = useNavigation();
+  const [memos, setMemos] = useState([]);
+  const onPressAdd = () => {
+    navigation.navigate('Compose');
+  };
+  useEffect(() => {
+    const initialize = async () => {
+      const newMemos = await loadAll();
+      setMemos(newMemos);
+    };
+    const unsubscribe = navigation.addListener('focus', initialize);
+
+    return unsubscribe;
+  }, [navigation])
   return (
     <View style={styles.container}>
       <FlatList
@@ -41,6 +38,15 @@ export const MainScreen = () => {
           />
         )}>
       </FlatList>
+      <FAB
+        style ={{
+          position: 'absolute',
+          right: 16,
+          bottom: 16,
+        }}
+        icon = "plus"
+        onPress = {onPressAdd}
+      />
     </View>
   );
 }
